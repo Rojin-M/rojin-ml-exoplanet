@@ -20,6 +20,10 @@ rojin-ml-exoplanet/
 ├── training/
 │   ├── cnn/
 │   │   └── train_kepler_cnn.py
+│   ├── stacking/
+│   │   └── stack_cnn_hgb.py
+│   ├── transformer/
+│   │   └── train_kepler_transformer.py
 │   └── tabular/
 │       └── train_hgb.py
 └── setup/
@@ -257,6 +261,54 @@ The HGB script:
 - runs a small validation-driven regularization search by default
 - tunes the classification threshold on validation
 - saves summaries, predictions, model files, and candidate-search results under `outputs/tabular/`
+
+### Stacking
+
+Blend the saved CNN and HGB runs into a validation-tuned ensemble:
+
+```bash
+python training/stacking/stack_cnn_hgb.py \
+  --base_dir "$PROJECT_ROOT" \
+  --method blend \
+  --selection_metric f1
+```
+
+By default this script:
+
+- auto-discovers the latest CNN and HGB run folders under `outputs/`
+- merges their validation and test prediction files by candidate
+- tunes the blend weight and classification threshold on validation
+- writes ensemble summaries and predictions under `outputs/stacking/`
+
+If you want to stack specific runs explicitly:
+
+```bash
+python training/stacking/stack_cnn_hgb.py \
+  --base_dir "$PROJECT_ROOT" \
+  --cnn_run_dir outputs/cnn/<cnn-run-dir> \
+  --hgb_run_dir outputs/tabular/<hgb-run-dir> \
+  --method blend
+```
+
+### Transformer
+
+Train the experimental transformer-based sequence model:
+
+```bash
+python training/transformer/train_kepler_transformer.py \
+  --base_dir "$PROJECT_ROOT" \
+  --batch_size 192 \
+  --epochs 80 \
+  --num_workers 4
+```
+
+This transformer is a modern extension, not a faithful ExoMiner reproduction:
+
+- it treats the `global` and `local` views as short sequences
+- it uses separate transformer branches plus a scalar-feature branch
+- it keeps the same processed dataset and grouped splits as the CNN and HGB baselines
+
+ExoMiner itself is not described as a transformer model. The original ExoMiner paper presents a modular deep-learning vetting system, and later ExoMiner++ descriptions still refer to multi-branch CNN-style architectures rather than transformers.
 
 If you want the old single-configuration behavior:
 

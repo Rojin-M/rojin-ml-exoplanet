@@ -44,3 +44,9 @@
 - Try a `v1` preprocessing version with more views or channels.
 - Add stacking / blending properly.
 - Evaluate on additional splits or repeated seeds.
+- Add a TESS preprocessing pipeline that writes the same processed array schema as Kepler.
+- Generalize manifests and split logic from `kepid`/`koi_*` fields to mission-agnostic identifiers and metadata.
+- Reuse the transformer architecture for TESS and compare against the Kepler transformer/CNN baselines.
+- Build a joint Kepler+TESS processed dataset and test mixed-mission training.
+- Try mission-aware transformer inputs, for example a mission token or mission scalar feature.
+- Compare Kepler-only, TESS-only, joint training, and Kepler-to-TESS transfer learning.
