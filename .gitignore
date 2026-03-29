@@ -1,0 +1,32 @@
+# Data
+data/*
+!data/processed/
+!data/processed/**
+
+# Logs / outputs
+logs/
+outputs/
+
+# Python
+__pycache__/
+*.pyc
+
+# Environments
+.venv/
+
+# Personal notes / local-only docs
+forme/
+
+# ML artifacts
+*.npz
+*.npy
+*.pt
+*.pth
+*.ckpt
+
+# Keep committed processed dataset artifacts
+!data/processed/**/*.npz
+!data/processed/**/*.csv
+
+# OS
+.DS_Store
