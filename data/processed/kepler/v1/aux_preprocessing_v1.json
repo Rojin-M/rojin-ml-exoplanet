@@ -1,0 +1,134 @@
+{
+  "fit_split": "train",
+  "fit_rows": 3853,
+  "feature_names": [
+    "koi_steff",
+    "koi_slogg",
+    "koi_smet",
+    "koi_srad",
+    "koi_smass",
+    "koi_teq",
+    "koi_insol",
+    "koi_fwm_srao",
+    "koi_fwm_sdeco",
+    "koi_dicco_msky",
+    "koi_dikco_msky"
+  ],
+  "feature_groups": [
+    "stellar",
+    "stellar",
+    "stellar",
+    "stellar",
+    "stellar",
+    "irradiation",
+    "irradiation",
+    "centroid",
+    "centroid",
+    "centroid",
+    "centroid"
+  ],
+  "units": [
+    "K",
+    "log10(cm/s^2)",
+    "dex",
+    "solar radii",
+    "solar masses",
+    "K",
+    "Earth flux",
+    "seconds of RA time",
+    "arcsec",
+    "arcsec",
+    "arcsec"
+  ],
+  "transforms": [
+    "identity",
+    "identity",
+    "identity",
+    "log10",
+    "log10",
+    "log10",
+    "log10",
+    "asinh",
+    "asinh",
+    "log1p",
+    "log1p"
+  ],
+  "valid_domains": [
+    "positive",
+    "finite",
+    "finite",
+    "positive",
+    "positive",
+    "positive",
+    "positive",
+    "finite",
+    "finite",
+    "nonnegative",
+    "nonnegative"
+  ],
+  "imputation": "training median in transformed space",
+  "medians": [
+    5773.0,
+    4.439,
+    -0.1,
+    -0.003269539675220087,
+    -0.012333735073725434,
+    3.0569048513364727,
+    2.6033122020329014,
+    -0.009999833340832886,
+    -0.025477243740076906,
+    0.3920420877760237,
+    0.3852624007906449
+  ],
+  "means": [
+    5707.3498572540875,
+    4.326129509473135,
+    -0.12407734233065176,
+    0.04828178300956529,
+    -0.01499205579579531,
+    3.073849616256125,
+    2.674192164474869,
+    -0.0364439675876382,
+    -0.02618958188384738,
+    0.7536835430172425,
+    0.7540878690383356
+  ],
+  "scales": [
+    817.4920403416223,
+    0.4278185900700702,
+    0.27517431652962726,
+    0.2614065152497579,
+    0.1337334645193129,
+    0.22677705662999534,
+    0.9120443043483706,
+    1.5944818741772346,
+    1.6115870900099492,
+    0.78913508800368,
+    0.769386359842822
+  ],
+  "standard_deviation_ddof": 0,
+  "constant_training_features": [],
+  "X_aux_is_standardized": true,
+  "missing_mask_is_separate": true,
+  "transform_notes": "log10 compresses positive scales; log1p permits zero offsets; asinh preserves the sign of shifts. Transforms operate on the numeric values in the listed native units; no data-dependent clipping.",
+  "source_files": {
+    "dataset": {
+      "path": "/local00/student/moradian/rojin-ml-exoplanet/data/processed/kepler/dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42.npz",
+      "sha256": "fe5774b8358c4f226e740cb1fa5dbc53a2df35b7d67722d3b1aa526c2c386f92"
+    },
+    "splits": {
+      "path": "/local00/student/moradian/rojin-ml-exoplanet/data/processed/kepler/splits_kepler_v0_seed42.npz",
+      "sha256": "3d2df76a8e9ef30fa812a456496a00f091e759fe910eec0a3239e643157e1a94"
+    },
+    "manifest": {
+      "path": "/local00/student/moradian/rojin-ml-exoplanet/data/processed/kepler/manifest_kepler_v0.csv",
+      "sha256": "7d858aaa14f15e7f46bd354612f443aef0696a5d582cd5c66a4f5fcfdaaa48a2"
+    },
+    "metadata": {
+      "path": "/local00/student/moradian/rojin-ml-exoplanet/data/raw/kepler/metadata/koi_cumulative.csv",
+      "sha256": "f573120900581e9d7e79699964fc3dd29f45d0127a63847a5ad0651730b2732f"
+    }
+  },
+  "fit_indices_sha256": "255b82d669061439148319c2c74923d6d00412f7226575cd4ffb6afb5642d86b",
+  "definitions_url": "https://exoplanetarchive.ipac.caltech.edu/docs/API_kepcandidate_columns.html"
+}

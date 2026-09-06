@@ -7,9 +7,14 @@ import pickle
 import random
 import re
 import time
+import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from scripts.paths import processed_path
 
 import numpy as np
 import pandas as pd
@@ -227,9 +232,9 @@ def candidate_rank_key(result: Dict[str, Any]) -> Tuple[float, float, float, flo
 
 def train_model(cfg: TrainConfig) -> Path:
     set_seed(cfg.seed)
-    dataset = np.load(cfg.dataset_path, allow_pickle=True)
-    splits = np.load(cfg.splits_path)
-    manifest = pd.read_csv(cfg.manifest_path)
+    dataset = np.load(processed_path(cfg.dataset_path), allow_pickle=True)
+    splits = np.load(processed_path(cfg.splits_path))
+    manifest = pd.read_csv(processed_path(cfg.manifest_path))
 
     x = load_feature_matrix(dataset, cfg.feature_set)
     y = dataset["y"].astype(np.int64)
@@ -322,7 +327,7 @@ def train_model(cfg: TrainConfig) -> Path:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train HistGradientBoosting baselines on processed Kepler artifacts.")
-    parser.add_argument("--base_dir", type=str, default="/local00/student/moradian/rojin-ml-exoplanet")
+    parser.add_argument("--base_dir", type=str, default=str(Path(__file__).resolve().parents[2]))
     parser.add_argument("--dataset_path", type=str, default="")
     parser.add_argument("--splits_path", type=str, default="")
     parser.add_argument("--manifest_path", type=str, default="")
@@ -344,7 +349,7 @@ def parse_args() -> argparse.Namespace:
 
 def build_config(args: argparse.Namespace) -> TrainConfig:
     base_dir = Path(args.base_dir)
-    processed_dir = base_dir / "data" / "processed" / "kepler"
+    processed_dir = base_dir / "data" / "processed" / "kepler" / "v0"
     dataset_path = Path(args.dataset_path) if args.dataset_path else auto_find_path(processed_dir, "dataset_kepler_*.npz")
     splits_path = Path(args.splits_path) if args.splits_path else auto_find_path(processed_dir, "splits_kepler_*.npz")
     manifest_path = Path(args.manifest_path) if args.manifest_path else infer_manifest_path(processed_dir, dataset_path)

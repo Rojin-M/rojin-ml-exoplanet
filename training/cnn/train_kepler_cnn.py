@@ -2,15 +2,22 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
 import random
 import re
 import time
+import sys
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterator, List, Optional, Tuple
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from scripts.paths import processed_path
 
 import numpy as np
 import pandas as pd
@@ -56,6 +63,43 @@ class TrainConfig:
     view_noise_std: float = 0.0
     scalar_noise_std: float = 0.0
     flat_dropout_prob: float = 0.0
+    wandb_mode: str = "disabled"
+    wandb_project: str = "kepler-practical"
+    wandb_entity: str = ""
+    wandb_group: str = ""
+    use_aux_branch: bool = False
+    aux_dropout: float = 0.10
+
+
+@contextmanager
+def tracking_run(cfg: TrainConfig, run_dir: Path) -> Iterator[Any]:
+    """Keep tracking optional and close the W&B run on success or failure."""
+    if cfg.wandb_mode == "disabled":
+        yield None
+        return
+
+    try:
+        import wandb
+    except ImportError as exc:
+        raise ImportError(
+            "W&B tracking was requested. Install its optional dependency with "
+            "`python -m pip install -r requirements-wandb.txt`, or use --wandb_mode disabled."
+        ) from exc
+
+    with wandb.init(
+        project=cfg.wandb_project,
+        entity=cfg.wandb_entity or None,
+        group=cfg.wandb_group or None,
+        name=run_dir.name,
+        config=asdict(cfg),
+        dir=str(run_dir),
+        mode=cfg.wandb_mode,
+        save_code=False,
+    ) as run:
+        run.define_metric("epoch")
+        for name in ("train/*", "val/*", "learning_rate"):
+            run.define_metric(name, step_metric="epoch")
+        yield run
 
 
 def set_seed(seed: int) -> None:
@@ -189,6 +233,7 @@ class KeplerTensorDataset(Dataset):
         x_flat: np.ndarray,
         y: np.ndarray,
         indices: np.ndarray,
+        x_aux: Optional[np.ndarray] = None,
     ) -> None:
         self.x_global = torch.from_numpy(x_global[indices]).float()
         self.x_local = torch.from_numpy(x_local[indices]).float()
@@ -196,12 +241,13 @@ class KeplerTensorDataset(Dataset):
         self.x_flat = torch.from_numpy(x_flat[indices]).float()
         self.y = torch.from_numpy(y[indices]).float()
         self.indices = torch.from_numpy(indices.astype(np.int64))
+        self.x_aux = torch.from_numpy(x_aux[indices]).float() if x_aux is not None else None
 
     def __len__(self) -> int:
         return int(self.y.shape[0])
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        return (
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, ...]:
+        sample = (
             self.x_global[idx],
             self.x_local[idx],
             self.x_scalar[idx],
@@ -209,6 +255,7 @@ class KeplerTensorDataset(Dataset):
             self.y[idx],
             self.indices[idx],
         )
+        return sample + (self.x_aux[idx],) if self.x_aux is not None else sample
 
 
 class ConvNormAct(nn.Module):
@@ -376,14 +423,21 @@ class ExoMinerStyleCNN(nn.Module):
         scalar_dropout: float,
         wide_dropout: float,
         use_wide_branch: bool,
+        aux_features: int = 0,
+        use_aux_branch: bool = False,
+        aux_dropout: float = 0.10,
     ) -> None:
         super().__init__()
+        if use_aux_branch and aux_features <= 0:
+            raise ValueError("The auxiliary branch requires a positive number of input features")
         self.global_branch = TransitBranch(in_channels=3, base_channels=40, dropout=dropout)
         self.local_branch = TransitBranch(in_channels=3, base_channels=40, dropout=dropout)
         self.scalar_branch = ScalarEncoder(scalar_features, dropout=scalar_dropout)
         self.use_wide_branch = use_wide_branch
         self.wide_branch = WideEncoder(flat_features, dropout=wide_dropout) if use_wide_branch else None
-        fusion_dim = 128 + 128 + 128 + 128 + 64 + (128 if use_wide_branch else 0)
+        self.use_aux_branch = use_aux_branch
+        self.aux_branch = ScalarEncoder(aux_features, dropout=aux_dropout) if use_aux_branch else None
+        fusion_dim = 128 + 128 + 128 + 128 + 64 + (128 if use_wide_branch else 0) + (64 if use_aux_branch else 0)
         self.classifier = nn.Sequential(
             nn.Linear(fusion_dim, 384),
             nn.LayerNorm(384),
@@ -402,7 +456,12 @@ class ExoMinerStyleCNN(nn.Module):
         x_local: torch.Tensor,
         x_scalar: torch.Tensor,
         x_flat: torch.Tensor,
+        x_aux: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        if self.aux_branch is not None and x_aux is None:
+            raise ValueError("X_aux is required when the auxiliary branch is enabled")
+        if self.aux_branch is None and x_aux is not None:
+            raise ValueError("X_aux was supplied but the auxiliary branch is disabled")
         global_embed = self.global_branch(x_global)
         local_embed = self.local_branch(x_local)
         scalar_embed = self.scalar_branch(x_scalar)
@@ -415,6 +474,8 @@ class ExoMinerStyleCNN(nn.Module):
         ]
         if self.wide_branch is not None:
             fused_parts.append(self.wide_branch(x_flat))
+        if self.aux_branch is not None:
+            fused_parts.append(self.aux_branch(x_aux))
         fused = torch.cat(fused_parts, dim=1)
         return self.classifier(fused).squeeze(1)
 
@@ -458,7 +519,11 @@ def run_epoch(
 
     context = torch.enable_grad if train_mode else torch.no_grad
     with context():
-        for x_global, x_local, x_scalar, x_flat, y, indices in loader:
+        for batch in loader:
+            if len(batch) not in (6, 7):
+                raise ValueError("Expected six baseline tensors and an optional seventh X_aux tensor")
+            x_global, x_local, x_scalar, x_flat, y, indices = batch[:6]
+            x_aux = batch[6].to(device, non_blocking=True) if len(batch) == 7 else None
             x_global = x_global.to(device, non_blocking=True)
             x_local = x_local.to(device, non_blocking=True)
             x_scalar = x_scalar.to(device, non_blocking=True)
@@ -482,7 +547,8 @@ def run_epoch(
 
             amp_enabled = scaler is not None and device.type == "cuda"
             with autocast(enabled=amp_enabled):
-                logits = model(x_global, x_local, x_scalar, x_flat)
+                logits = (model(x_global, x_local, x_scalar, x_flat, x_aux) if x_aux is not None
+                          else model(x_global, x_local, x_scalar, x_flat))
                 loss = loss_fn(logits, y_for_loss)
 
             if train_mode:
@@ -553,20 +619,66 @@ def save_predictions_csv(
     part.to_csv(path, index=False)
 
 
+def load_auxiliary_inputs(
+    dataset: Any, manifest: pd.DataFrame, train_idx: np.ndarray, cfg: TrainConfig,
+) -> Dict[str, np.ndarray]:
+    """Check the saved preprocessing contract and consume X_aux without fitting/scaling again."""
+    required = {"X_aux", "aux_feature_names", "aux_candidate_ids", "aux_preprocessing_json"}
+    missing = required - set(dataset.files)
+    if missing:
+        raise ValueError(
+            f"--aux_branch requires a prepared auxiliary dataset; missing {sorted(missing)}. "
+            "Build it with scripts/kepler_prepare_aux_v1.py."
+        )
+    x_aux = dataset["X_aux"].astype(np.float32)
+    names = dataset["aux_feature_names"].astype(str)
+    candidate_ids = dataset["aux_candidate_ids"].astype(str)
+    if (x_aux.ndim != 2 or x_aux.shape[0] != len(manifest) or x_aux.shape[1] == 0
+            or not np.isfinite(x_aux).all()):
+        raise ValueError("X_aux must be a finite, nonempty 2D array aligned with the manifest")
+    if (names.ndim != 1 or len(names) != x_aux.shape[1] or len(set(names)) != len(names)
+            or any(not name.strip() for name in names)):
+        raise ValueError("Auxiliary feature names must be unique and match the X_aux columns")
+    if not manifest.candidate_id.is_unique or not np.array_equal(candidate_ids, manifest.candidate_id.astype(str).to_numpy()):
+        raise ValueError("Auxiliary candidate order does not match the supplied manifest")
+    if not np.array_equal(dataset["y"], manifest.y.to_numpy()):
+        raise ValueError("Auxiliary dataset labels do not match the supplied manifest")
+    preprocessing_text = str(dataset["aux_preprocessing_json"].item())
+    preprocessing = json.loads(preprocessing_text)
+    if (preprocessing.get("X_aux_is_standardized") is not True or preprocessing.get("fit_split") != "train"
+            or preprocessing.get("fit_rows") != len(train_idx)):
+        raise ValueError("X_aux must have preprocessing fitted on the supplied training split")
+    if preprocessing.get("feature_names") != names.tolist():
+        raise ValueError("Auxiliary feature order differs from the preprocessing record")
+    for key in ("medians", "means", "scales"):
+        values = np.asarray(preprocessing.get(key, []), dtype=float)
+        if values.shape != (len(names),) or not np.isfinite(values).all() or (key == "scales" and (values <= 0).any()):
+            raise ValueError(f"Invalid auxiliary preprocessing {key}")
+    fit_hash = hashlib.sha256(np.asarray(train_idx, dtype="<i8").tobytes()).hexdigest()
+    if preprocessing.get("fit_indices_sha256") != fit_hash:
+        raise ValueError("Auxiliary preprocessing was fitted using different training indices")
+    for key, path in (("splits", cfg.splits_path), ("manifest", cfg.manifest_path)):
+        expected = preprocessing.get("source_files", {}).get(key, {}).get("sha256")
+        if hashlib.sha256(processed_path(path).read_bytes()).hexdigest() != expected:
+            raise ValueError(f"Supplied {key} does not match the auxiliary preprocessing source hash")
+    return {"x_aux": x_aux, "aux_feature_names": names,
+            "aux_preprocessing_json": np.array(preprocessing_text)}
+
+
 def load_training_data(cfg: TrainConfig) -> Tuple[Dict[str, np.ndarray], pd.DataFrame]:
-    dataset = np.load(cfg.dataset_path, allow_pickle=True)
-    splits = np.load(cfg.splits_path)
-    manifest = pd.read_csv(cfg.manifest_path)
+    manifest = pd.read_csv(processed_path(cfg.manifest_path))
+    with np.load(processed_path(cfg.dataset_path), allow_pickle=True) as dataset, np.load(processed_path(cfg.splits_path)) as splits:
+        x_global = dataset["X_global"].astype(np.float32)
+        x_local = dataset["X_local"].astype(np.float32)
+        x_scalar = dataset["X_scalar"].astype(np.float32)
+        x_flat = dataset["X"].astype(np.float32)
+        y = dataset["y"].astype(np.int64)
 
-    x_global = dataset["X_global"].astype(np.float32)
-    x_local = dataset["X_local"].astype(np.float32)
-    x_scalar = dataset["X_scalar"].astype(np.float32)
-    x_flat = dataset["X"].astype(np.float32)
-    y = dataset["y"].astype(np.int64)
-
-    train_idx = splits["train_idx"].astype(np.int64)
-    val_idx = splits["val_idx"].astype(np.int64)
-    test_idx = splits["test_idx"].astype(np.int64)
+        train_idx = splits["train_idx"].astype(np.int64)
+        val_idx = splits["val_idx"].astype(np.int64)
+        test_idx = splits["test_idx"].astype(np.int64)
+        # The transformer also uses this loader with its own configuration type.
+        auxiliary = load_auxiliary_inputs(dataset, manifest, train_idx, cfg) if getattr(cfg, "use_aux_branch", False) else {}
 
     x_global = normalize_view_channels(x_global[train_idx], x_global)
     x_local = normalize_view_channels(x_local[train_idx], x_local)
@@ -582,22 +694,29 @@ def load_training_data(cfg: TrainConfig) -> Tuple[Dict[str, np.ndarray], pd.Data
         "train_idx": train_idx,
         "val_idx": val_idx,
         "test_idx": test_idx,
+        **auxiliary,
     }
     return arrays, manifest
 
 
 def train_model(cfg: TrainConfig) -> Path:
+    dataset_name = Path(cfg.dataset_path).stem
+    run_name = f"{dataset_name}_cnn_{time.strftime('%Y%m%d_%H%M%S')}"
+    run_dir = Path(cfg.output_root) / run_name
+    run_dir.mkdir(parents=True, exist_ok=True)
+    write_json(run_dir / "config.json", asdict(cfg))
+    with tracking_run(cfg, run_dir) as tracker:
+        return _train_model(cfg, run_dir, tracker)
+
+
+def _train_model(cfg: TrainConfig, run_dir: Path, tracker: Any) -> Path:
+    # Seed after tracking initialization so enabling logging does not alter initialization.
     set_seed(cfg.seed)
     if hasattr(torch, "set_float32_matmul_precision"):
         torch.set_float32_matmul_precision("high")
 
     device = detect_device(cfg.device)
     arrays, manifest = load_training_data(cfg)
-
-    dataset_name = Path(cfg.dataset_path).stem
-    run_name = f"{dataset_name}_cnn_{time.strftime('%Y%m%d_%H%M%S')}"
-    run_dir = Path(cfg.output_root) / run_name
-    run_dir.mkdir(parents=True, exist_ok=True)
 
     train_ds = KeplerTensorDataset(
         arrays["x_global"],
@@ -606,6 +725,7 @@ def train_model(cfg: TrainConfig) -> Path:
         arrays["x_flat"],
         arrays["y"],
         arrays["train_idx"],
+        x_aux=arrays.get("x_aux"),
     )
     val_ds = KeplerTensorDataset(
         arrays["x_global"],
@@ -614,6 +734,7 @@ def train_model(cfg: TrainConfig) -> Path:
         arrays["x_flat"],
         arrays["y"],
         arrays["val_idx"],
+        x_aux=arrays.get("x_aux"),
     )
     test_ds = KeplerTensorDataset(
         arrays["x_global"],
@@ -622,22 +743,38 @@ def train_model(cfg: TrainConfig) -> Path:
         arrays["x_flat"],
         arrays["y"],
         arrays["test_idx"],
+        x_aux=arrays.get("x_aux"),
     )
 
     train_loader = make_dataloader(train_ds, cfg.batch_size, shuffle=True, num_workers=cfg.num_workers, device=device)
     val_loader = make_dataloader(val_ds, cfg.batch_size, shuffle=False, num_workers=cfg.num_workers, device=device)
     test_loader = make_dataloader(test_ds, cfg.batch_size, shuffle=False, num_workers=cfg.num_workers, device=device)
 
+    if tracker is not None:
+        tracker.config.update({
+            "resolved_device": str(device),
+            "train_size": len(train_ds),
+            "val_size": len(val_ds),
+            "test_size": len(test_ds),
+            "pr_auc_definition": "sklearn.metrics.average_precision_score",
+            "aux_feature_count": int(arrays["x_aux"].shape[1]) if cfg.use_aux_branch else 0,
+            "aux_feature_names": arrays["aux_feature_names"].tolist() if cfg.use_aux_branch else [],
+        })
+
     scalar_features = int(arrays["x_scalar"].shape[1])
     flat_features = int(arrays["x_flat"].shape[1])
-    model = ExoMinerStyleCNN(
-        scalar_features=scalar_features,
-        flat_features=flat_features,
-        dropout=cfg.dropout,
-        scalar_dropout=cfg.scalar_dropout,
-        wide_dropout=cfg.wide_dropout,
-        use_wide_branch=cfg.use_wide_branch,
-    ).to(device)
+    model_config = {
+        "scalar_features": scalar_features, "flat_features": flat_features,
+        "dropout": cfg.dropout, "scalar_dropout": cfg.scalar_dropout, "wide_dropout": cfg.wide_dropout,
+        "use_wide_branch": cfg.use_wide_branch, "use_aux_branch": cfg.use_aux_branch,
+        "aux_features": int(arrays["x_aux"].shape[1]) if cfg.use_aux_branch else 0,
+        "aux_dropout": cfg.aux_dropout,
+    }
+    auxiliary_preprocessing = json.loads(str(arrays["aux_preprocessing_json"].item())) if cfg.use_aux_branch else None
+    write_json(run_dir / "model_config.json", model_config)
+    if auxiliary_preprocessing is not None:
+        write_json(run_dir / "aux_preprocessing.json", auxiliary_preprocessing)
+    model = ExoMinerStyleCNN(**model_config).to(device)
     if cfg.compile_model and hasattr(torch, "compile"):
         model = torch.compile(model)  # type: ignore[assignment]
 
@@ -659,6 +796,7 @@ def train_model(cfg: TrainConfig) -> Path:
 
     train_threshold = 0.5
     for epoch in range(1, cfg.epochs + 1):
+        epoch_learning_rate = float(optimizer.param_groups[0]["lr"])
         train_loss, train_probs, train_targets, _ = run_epoch(
             model=model,
             loader=train_loader,
@@ -687,19 +825,26 @@ def train_model(cfg: TrainConfig) -> Path:
 
         row = {
             "epoch": epoch,
-            "learning_rate": float(optimizer.param_groups[0]["lr"]),
+            "learning_rate": epoch_learning_rate,
             "train_loss": train_metrics["loss"],
+            "train_accuracy": train_metrics["accuracy"],
             "train_pr_auc": train_metrics["pr_auc"],
             "train_roc_auc": train_metrics["roc_auc"],
             "train_f1": train_metrics["f1"],
             "train_threshold": train_threshold,
             "val_loss": val_metrics["loss"],
+            "val_accuracy": val_metrics["accuracy"],
             "val_pr_auc": val_metrics["pr_auc"],
             "val_roc_auc": val_metrics["roc_auc"],
             "val_f1": val_metrics["f1"],
             "val_threshold": val_tuned_threshold,
         }
         history.append(row)
+        if tracker is not None:
+            tracker.log({
+                key.replace("train_", "train/", 1).replace("val_", "val/", 1): value
+                for key, value in row.items()
+            }, step=epoch)
 
         improved = val_metrics["pr_auc"] > best_val_pr_auc
         if improved:
@@ -713,6 +858,8 @@ def train_model(cfg: TrainConfig) -> Path:
                     "epoch": epoch,
                     "val_pr_auc": best_val_pr_auc,
                     "val_threshold": val_tuned_threshold,
+                    "model_config": model_config,
+                    "aux_preprocessing": auxiliary_preprocessing,
                 },
                 best_checkpoint,
             )
@@ -723,7 +870,7 @@ def train_model(cfg: TrainConfig) -> Path:
             f"epoch={epoch:03d} "
             f"train_loss={train_metrics['loss']:.4f} train_pr_auc={train_metrics['pr_auc']:.4f} "
             f"val_loss={val_metrics['loss']:.4f} val_pr_auc={val_metrics['pr_auc']:.4f} "
-            f"val_f1={val_metrics['f1']:.4f} lr={optimizer.param_groups[0]['lr']:.2e}"
+            f"val_f1={val_metrics['f1']:.4f} lr={epoch_learning_rate:.2e}"
         )
 
         if epochs_without_improvement >= cfg.patience:
@@ -745,12 +892,15 @@ def train_model(cfg: TrainConfig) -> Path:
     save_predictions_csv(run_dir / "test_predictions.csv", manifest, test_eval["indices"], test_eval["probs"], best_threshold)
 
     summary = {
-        "run_name": run_name,
+        "run_name": run_dir.name,
         "dataset_path": cfg.dataset_path,
         "splits_path": cfg.splits_path,
         "manifest_path": cfg.manifest_path,
         "device": str(device),
         "use_wide_branch": cfg.use_wide_branch,
+        "use_aux_branch": cfg.use_aux_branch,
+        "aux_feature_count": model_config["aux_features"],
+        "aux_feature_names": arrays["aux_feature_names"].tolist() if cfg.use_aux_branch else [],
         "best_epoch": best_epoch,
         "best_threshold": best_threshold,
         "train_metrics": train_eval["metrics"],
@@ -763,6 +913,13 @@ def train_model(cfg: TrainConfig) -> Path:
     write_json(run_dir / "summary.json", summary)
     write_json(run_dir / "config.json", asdict(cfg))
 
+    if tracker is not None:
+        final_metrics = {"best_epoch": best_epoch, "best_threshold": best_threshold}
+        for prefix, evaluation in (("final_train", train_eval), ("final_val", val_eval), ("test", test_eval)):
+            final_metrics.update({f"{prefix}/{key}": value for key, value in evaluation["metrics"].items()})
+        tracker.log(final_metrics, step=len(history) + 1)
+        tracker.summary.update(final_metrics)
+
     print("\nBest validation/test summary")
     print(json.dumps(summary, indent=2))
     return run_dir
@@ -770,7 +927,7 @@ def train_model(cfg: TrainConfig) -> Path:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train an ExoMiner-inspired Kepler CNN on processed dataset artifacts.")
-    parser.add_argument("--base_dir", type=str, default="/local00/student/moradian/rojin-ml-exoplanet")
+    parser.add_argument("--base_dir", type=str, default=str(Path(__file__).resolve().parents[2]))
     parser.add_argument("--dataset_path", type=str, default="")
     parser.add_argument("--splits_path", type=str, default="")
     parser.add_argument("--manifest_path", type=str, default="")
@@ -788,17 +945,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--wide_branch", action="store_true")
+    parser.add_argument("--aux_branch", action="store_true",
+                        help="Use prepared X_aux; requires explicit dataset, split, and manifest paths.")
+    parser.add_argument("--aux_dropout", type=float, default=0.10)
     parser.add_argument("--label_smoothing", type=float, default=0.0)
     parser.add_argument("--view_noise_std", type=float, default=0.0)
     parser.add_argument("--scalar_noise_std", type=float, default=0.0)
     parser.add_argument("--flat_dropout_prob", type=float, default=0.0)
     parser.add_argument("--compile", action="store_true", dest="compile_model")
+    parser.add_argument("--wandb_mode", choices=("disabled", "offline", "online"), default="disabled",
+                        help="Optional experiment tracking; offline stores W&B logs locally without login.")
+    parser.add_argument("--wandb_project", default="kepler-practical")
+    parser.add_argument("--wandb_entity", default="", help="Optional W&B username or team.")
+    parser.add_argument("--wandb_group", default="", help="Group related experiments, e.g. a fixed multi-seed configuration.")
     return parser.parse_args()
 
 
 def build_config(args: argparse.Namespace) -> TrainConfig:
+    if args.aux_branch and not all((args.dataset_path, args.splits_path, args.manifest_path)):
+        raise ValueError("--aux_branch requires explicit --dataset_path, --splits_path, and --manifest_path from the same auxiliary build")
     base_dir = Path(args.base_dir)
-    processed_dir = base_dir / "data" / "processed" / "kepler"
+    processed_dir = base_dir / "data" / "processed" / "kepler" / "v0"
     dataset_path = Path(args.dataset_path) if args.dataset_path else auto_find_path(processed_dir, "dataset_kepler_*.npz")
     splits_path = Path(args.splits_path) if args.splits_path else auto_find_path(processed_dir, "splits_kepler_*.npz")
     manifest_path = Path(args.manifest_path) if args.manifest_path else infer_manifest_path(processed_dir, dataset_path)
@@ -826,10 +993,16 @@ def build_config(args: argparse.Namespace) -> TrainConfig:
         device=args.device,
         gradient_clip_norm=args.gradient_clip_norm,
         use_wide_branch=args.wide_branch,
+        use_aux_branch=args.aux_branch,
+        aux_dropout=args.aux_dropout,
         label_smoothing=args.label_smoothing,
         view_noise_std=args.view_noise_std,
         scalar_noise_std=args.scalar_noise_std,
         flat_dropout_prob=args.flat_dropout_prob,
+        wandb_mode=args.wandb_mode,
+        wandb_project=args.wandb_project,
+        wandb_entity=args.wandb_entity,
+        wandb_group=args.wandb_group,
     )
 
 

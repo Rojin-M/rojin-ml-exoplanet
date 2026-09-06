@@ -1,0 +1,31 @@
+{
+  "screen_seeds": [
+    42,
+    43
+  ],
+  "final_seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "screen_variants": [
+    "legacy_input_norm",
+    "bypass_input_norm"
+  ],
+  "selection_rule": "Choose the variant with larger mean selected-checkpoint validation AP across screen seeds 42 and 43; exact tie retains legacy_input_norm. No test evaluation during screening.",
+  "final_rule": "Freeze the chosen input-normalization mode; reuse its two screen runs and train seeds 44-46 for v0. Train auxiliary v1 with seeds 42-46 and the same shared transformer settings. Test evaluation occurs only after all configurations are frozen; every seed is reported.",
+  "changed_factors": [
+    "bypass initial LayerNorm(3) in normalization screen",
+    "11-feature auxiliary branch in final v0/v1 comparison"
+  ],
+  "held_fixed": "Original transformer optimizer, LR schedule, batch size 192, 80-epoch cap, patience 12, token dropout, shared dropout, cloned encoder initialization, architecture widths/depths. Effective attention dropout stays 0.15 in every run; the historical attention_dropout=0.10 argument remains recorded-only.",
+  "model_selection": "Maximum validation AP selects checkpoint; validation F1 selects threshold.",
+  "limitations": [
+    "Previously consulted fixed Kepler split; no untouched-test or TESS claim",
+    "Normalization screening uses two seeds; final metadata comparison uses five",
+    "Auxiliary extension changes inputs and parameter count; it does not isolate individual feature contributions"
+  ],
+  "use_amp": false
+}

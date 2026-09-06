@@ -1,0 +1,9 @@
+{
+  "data/processed/kepler/v0/manifest_kepler_v0.csv": "7d858aaa14f15e7f46bd354612f443aef0696a5d582cd5c66a4f5fcfdaaa48a2",
+  "data/processed/kepler/v0/splits_kepler_v0_seed42.npz": "3d2df76a8e9ef30fa812a456496a00f091e759fe910eec0a3239e643157e1a94",
+  "data/processed/kepler/v0/dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42.npz": "fe5774b8358c4f226e740cb1fa5dbc53a2df35b7d67722d3b1aa526c2c386f92",
+  "data/processed/kepler/v1/manifest_kepler_v1.csv": "7d858aaa14f15e7f46bd354612f443aef0696a5d582cd5c66a4f5fcfdaaa48a2",
+  "data/processed/kepler/v1/dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42.npz": "73e3a02172f0680b51d5f389bfd32610ee663f1fbfd3ee700bb9bb66eebcacae",
+  "data/processed/kepler/v1/aux_preprocessing_v1.json": "97ed8f50c99ad67482eadf4e00d434f03bdddaf47f4f5386e3b616284ff4a7be",
+  "data/processed/kepler/v1/splits_kepler_v1_seed42.npz": "3d2df76a8e9ef30fa812a456496a00f091e759fe910eec0a3239e643157e1a94"
+}

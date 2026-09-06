@@ -1,0 +1,5 @@
+variant,seed,epochs_run,best_epoch,use_input_norm,val_pr_auc
+legacy_input_norm,42,38,26,True,0.8495768180417508
+legacy_input_norm,43,36,24,True,0.8599307982564968
+bypass_input_norm,42,50,38,False,0.9396157202297876
+bypass_input_norm,43,69,57,False,0.9494695289679662

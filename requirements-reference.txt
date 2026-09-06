@@ -1,0 +1,11 @@
+# Direct scientific dependencies used for the reference experiments (Python 3.9).
+# Install PyTorch separately for your hardware; W&B remains optional.
+numpy==1.26.4
+pandas==2.3.3
+scipy==1.13.1
+scikit-learn==1.6.1
+tqdm==4.67.3
+astropy==6.0.1
+lightkurve==2.5.1
+matplotlib==3.9.4
+pyarrow==17.0.0

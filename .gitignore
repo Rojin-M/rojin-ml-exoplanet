@@ -14,9 +14,6 @@ __pycache__/
 # Environments
 .venv/
 
-# Personal notes / local-only docs
-forme/
-
 # ML artifacts
 *.npz
 *.npy

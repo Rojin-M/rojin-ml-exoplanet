@@ -1,0 +1,158 @@
+{
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_hgb_scalar_20260906_002307": {
+    "val_predictions.csv": "0b657fd0cdf1360c5b6a2e752a15d31c99b9c0a698aa824acf9377eeb2316bb7",
+    "test_predictions.csv": "c787062185c204784059cf92c3413ab7bf0fd84a294942ddf83e85ad1211e84a",
+    "summary.json": "90d4fa2e0211b198c59ef5c93f1955c42e0e12cff248b69ca3dba838f4fea889",
+    "config.json": "dfb3016a991542d99800c0e1f2c4e9fe6470111e21c5905fafbbd87a19081be9"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_hgb_full_20260906_002402": {
+    "val_predictions.csv": "9831c9dd75fb2346c28c55733c0d8b5e50c6f499a0744c79c0cd0b1899364036",
+    "test_predictions.csv": "693e099cba89253964d1f4e3c93f3adc7c5dad981b8ebf1c3ba14da2a5356429",
+    "summary.json": "4717f19a910a1408bbd8578d4299916ed9df5763399d84d318b72fce9f973fb7",
+    "config.json": "c336f74e25e68931586d98ac7337316bae3f94cd7c9f0dc16137cbd0f9e8097e"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_002501": {
+    "val_predictions.csv": "f3df1e44bb110e6629f8c46e372c8b24db1c3f1079fa9c32698b9d2027dd5d0b",
+    "test_predictions.csv": "399800eb0c49cff6daa2fd3ef77834637e4023f761e70b303a3cb110de024381",
+    "summary.json": "32a73e4d5cfd621fa41a122e2d971406eabb82761038d3c9929e5c8ea382add0",
+    "config.json": "129ef0574f17572cd5669a3a8be08afd30026d3f4668fa10be68a89382280b0f"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_002732": {
+    "val_predictions.csv": "282ff1ac66491b0e0d171621808e8dcecd20a80681b0fd92018be9ba23ef3b41",
+    "test_predictions.csv": "bc8240c4c26cdc2eefd2b2d495807a5306b2b6de3fe4e18c28783a91b37c032f",
+    "summary.json": "bfbe80968e6518150d27b2c76eb0fc9136eb725334952c496869e495254e9f94",
+    "config.json": "926d76be1944246e83f225df4997587cbc9822f77d64d401ad882d66901a1ac1"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_002902": {
+    "val_predictions.csv": "f5d36e7d2d2a7feda0119af8782d8fe6d6bebc47cf3239d4a9677d3877fca1fb",
+    "test_predictions.csv": "c2308066ea346024971b4d8574d73df161ed3a84e1ae0434616223cac7bee1ae",
+    "summary.json": "e37481bff4cdb7dc5fa6f3809fa6fc25a3d3b217c3bcab0e9f0118c65a785f12",
+    "config.json": "1955eb69a2e56303c30febfd5bfe20a3e43bdd26883bda97755d01acdb51f411"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_stack_blend_20260906_003122": {
+    "val_predictions.csv": "3d60538a8ca15d4b985257d8b462e832c5b9e468fb2e9d9354a9294f2e340af5",
+    "test_predictions.csv": "bce27c45fc87cbc6ae880d21c14b1fac2711107b1c603f3a835a08c51d73c52f",
+    "summary.json": "43db6e5afaf6a72f761405cd1ff58a5a5f3ba6a995065f4bf694271f32745d43",
+    "config.json": "83a83eea87c0f6f9a7d2ba2e6abf276ed3a14f92987727aaa76102406f28c3bb"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_003140": {
+    "val_predictions.csv": "cb27ec08b8605014224db4c10b31836fa401c18309ef501c42db051b529801ae",
+    "test_predictions.csv": "1f9ff01ed7bbb966c62a1f23b07d2a98e953c4e41081721a9b5c90a81a984fad",
+    "summary.json": "b0dc18979f9aedeacd9a045699ec2d8db70e79364ecc4cf0361f2a0dd785e1e6",
+    "config.json": "074e32fa5409ce56f63776ea46db3e25d874489f7bacbe608dc697c4fdfd39fa"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_003333": {
+    "val_predictions.csv": "9ef1341ae64d9cf8092ef9478d63de53bf8289e6d1b3253fd0699cb913aeb159",
+    "test_predictions.csv": "bacb473e7fcc4782afa0a1e850e232d4586ead9cf255f13169fecb5167946298",
+    "summary.json": "ce48aa8f8bb8b65a560ee4f996e0d817bed5b3f32d2c216c1502955e8dcdec7f",
+    "config.json": "01e83fcac891cc24df755978c74b55ded97b6974bfedf97f7565b5458270a60e"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_003507": {
+    "val_predictions.csv": "10f0d7a9bdbbfe4374c4ac177c0baa884429e3b1852a349378e960290b4acb73",
+    "test_predictions.csv": "3b65a655399d336f8b0a12314eba03c4ee4bb00850d1fff0fa5d5bf788b41b0d",
+    "summary.json": "a5cbaa8682e8aa42c5435c28bdf293afba2eb72df4c3c4ac5137c72a5163fe7e",
+    "config.json": "d30feb03e4bf7dc975af9c02864753502713d48690c2f9260afdd1b907c91b5e"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_003728": {
+    "val_predictions.csv": "73a5cbe9e0035f1160290e45f5e13dacd8409dcf21032b40ba1b62ffb1396c65",
+    "test_predictions.csv": "5e340ec22b7f3b0d34a4d36abb2b00a2d265994f800f1dd20a0982cb83021456",
+    "summary.json": "8b1f46949ad6330162c8e55337f14f475c1cb5df5bbd8a9697b70414dc121d83",
+    "config.json": "9f6605a2e0a05d0f33afc52d8088e228a3c32d78ec85b655534aadfb26b4cb95"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_003858": {
+    "val_predictions.csv": "b2a3049ec9c9c3920e396a724f606714b808c1d129ea5df9da80fe9ba3037d75",
+    "test_predictions.csv": "09be2be789344b60b8f0441b4232248b21eb5c7421d8e5334b15ede99aed036f",
+    "summary.json": "f6911325d62b9803a85c75a4bac7dd3cd9ca2528c64a936674b29052e53c046f",
+    "config.json": "94b05f9eb3baa96ac435a6514bf16daefedb56d7946e3feda1e6152fa4b564a6"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_004213": {
+    "val_predictions.csv": "87fc874b8f9051a97e159770b8e1d4f974a60dc2cb7d6967dcbebca92239f839",
+    "test_predictions.csv": "9434ba448b8378d9dae4fd07f55190fab012ad4a4802731a2686d7d2bd3081c2",
+    "summary.json": "15008442e881ce767e481037ee27bff034fb626f05f8b338833e75848f2d3413",
+    "config.json": "6326734b478d3d8f3ed0ef32df6c13e8311bf145935914fbf37a4215a368d587"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_004451": {
+    "val_predictions.csv": "44b5b77b8d6fcefd759207bb5a028d964affad29ad2ee13c6538bb4cff24a6d0",
+    "test_predictions.csv": "d9ec1251ec7fc193a61433a6cdbba0304b854557cb48de8e8a611f304c519c8f",
+    "summary.json": "b0c5bfaad50e81cc8a9f1ae299146ad62deba690f67f112f126df4f673ac39de",
+    "config.json": "cb2365fe8364553181e989c02c7ba9777385c72e85d082a34ac112a3055e3767"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_004705": {
+    "val_predictions.csv": "7b5fea2d8a75d15ac8f5c0a4b47e554f2b289b3907580e0a031bd480be8c233d",
+    "test_predictions.csv": "91ed1bba72e3d1f84ec0becd6d3d9fad5f2eb5bf5c6c8f9ca22723751322b894",
+    "summary.json": "71f5cd3beee45481dee260c31f306e251e1fb3b97c947139a5a63d5e0651886c",
+    "config.json": "0b374fb884d9de178962a9a16fc7c02de50eff843bd39d314e03ec14cf702cf9"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_004908": {
+    "val_predictions.csv": "80b18a1cc66473d36f9f8de4a1eb0febc8f712a27a5996fa4c36571e1bf613a2",
+    "test_predictions.csv": "b2303d8228101b616e0d11e5e07f76dbae9470a1089ef3442982d2d8a9030e80",
+    "summary.json": "2c2708702a295a8ba0c16ebd83538040fad8032cc1709473f9766992b0346367",
+    "config.json": "357cfe23a455076f6d3e5359736ae7e4a888b774df475cc082696fdbca17a69a"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_cnn_20260906_005043": {
+    "val_predictions.csv": "c788641e78cc156686b85bb0c4f13f764a4480fe0147a20ef3dc1c82032f029c",
+    "test_predictions.csv": "4ef9953071825fe57cc81dd181b177626255a024e728e1668d36ffc9ace22548",
+    "summary.json": "ffc5dc1bccc697c7d6346f7796b1dcfe1700e4915218547d10c7869b1c43fd66",
+    "config.json": "a18178b5111ceae150acf0a259e25d40427ea35e61a93e3c0861c3584e8ad721"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_011459": {
+    "val_predictions.csv": "f398d5c0daec459e1ab92cd5990a3c58fe95c7dddd281627ced785c63bbdd852",
+    "test_predictions.csv": "ded8d3fe71e08eb80368e82b699a74b368a5077495600f0f4f5c500193c5c319",
+    "summary.json": "dc90dc78468d72cef847bed8502bedead955e775956fbbf16fb75a0253daadf8",
+    "config.json": "6832090850263ddc5e5185a3aea5deb219d5b1b4a05869364faf22c21eb8232a"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_012744": {
+    "val_predictions.csv": "12ef9ed8a95e5ee68a7a1b2b88bde6565fb709502176a64d0c3d60f39614cd1c",
+    "test_predictions.csv": "501fd58b9704351c731f05a0bc98d5ab6a274c1c7d88e5ce93810eee7c4f2f93",
+    "summary.json": "d1da9db41ee39aa2d062cfabfd841b7000c70cf0a274b90c190fd3cccea6c72f",
+    "config.json": "d4011603909f76cc1ae6d8e4360b392d50b159911543778ad2fc1f5ba0bb00e2"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_014521": {
+    "val_predictions.csv": "99055c6366ebf7e2d2e7e6e64cf20b72d82b16eaae0facb72137a9fcc05f4260",
+    "test_predictions.csv": "ae003a32d453a91d6fcc3cc7bd2118077630c402ec4fc4902e2fc0e5d6ceabac",
+    "summary.json": "1873d21715ac5ba11414d8fe0631baa4dd605d785b87e398821198d1776b1ea8",
+    "config.json": "3fce4e21ab02047aca5139e71a8a1e4ba4c9b2a3f1bfa815cab92211d9a4237f"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_015937": {
+    "val_predictions.csv": "65313cf89f1d6bf8ef5ce2d00e926864e774cd2bf4c232b13cc779b278b721e3",
+    "test_predictions.csv": "e757641888906189c37a26066e4343a0e206fee6deb0781964b8f059f3fa71c8",
+    "summary.json": "55354c50703402bd46f50d4c8ab87c4d1b7d5c8962a71a96fa92c11ed6439faa",
+    "config.json": "a1513fb7b2cb0f7d1a23d6a20ed6c433a41050f658160c7cf9aecab2a42aee3d"
+  },
+  "dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_021359": {
+    "val_predictions.csv": "4b9eae8fe64b889a3641798400b6f02d725dc3abc835917e459455cbe5b43e1c",
+    "test_predictions.csv": "b4a702192f9e8fe0c1a7d3bcdf62d6be29ff80f5d48a9e73557c36fd7cf667e0",
+    "summary.json": "ab128a1d8198e2ca8bb1c9b0a06a4044b34fc064a71590bc30435c8ac27bbbf5",
+    "config.json": "841b932cb96d5d738f7755a1c0eed56ace7a3e96ac57aee14bb6df9f3dbfb65f"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_023042": {
+    "val_predictions.csv": "2c85c43e46e65cf34f5b01393b1f09402a62dfd6e63a74cf89df40c1fc3f995b",
+    "test_predictions.csv": "90e6b64cf5b9b32577db361507a22040552e4a818c1a9821a0a0342f08e2a20d",
+    "summary.json": "ebf2e07de1e100f0712445a625885c6d1a95ade42c5b1feb07ac2bf74abaf18b",
+    "config.json": "3256d17f7ab858fa4ccb45e71cb476789116a3901c13254c3503e0ab9a514417"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_023812": {
+    "val_predictions.csv": "11e188e6ab5d1a66d1d13c8496cb3d2031cb8e759f1c51347b62555f2bea4f21",
+    "test_predictions.csv": "679116f95a2d34350fcaee8df3c0cc899b23549a3556d04a57d49967e09f85a7",
+    "summary.json": "f3ff82735e275d8902fd9d58537570dd5d42e0e76e0e6830347031732456c0fd",
+    "config.json": "e327febeadcb7116f626b73fea64fdc765f23cfe85f9fcd02f160b0d4df17646"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_024816": {
+    "val_predictions.csv": "426b72cd4f5e03ac4e35fd8d896c8f0f773dabfa3a9b3196e4cb722227a7bb99",
+    "test_predictions.csv": "9640dc5a0cd84e9156400bb499a0bbd361253816fc116752b8d183db072da240",
+    "summary.json": "b8be79106c1c7ae3263728477d3321196fe51f9e1b7938dc2b86f7a1ec1e84a6",
+    "config.json": "815ebded16bb50eb008b53e8133c67f708bde931dfb2068030c9675c156d9742"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_025621": {
+    "val_predictions.csv": "b7b1e54e4f19a930e140943fecd0d27999b31e52748c947cda16583d35f8c1e8",
+    "test_predictions.csv": "60e6aa17ca5e7230d2239722a59429ae13b0ed2c8c676a94ef44753a3dd11db1",
+    "summary.json": "a8b488d9639929166ee8a035fade01643b0cf6767ac8e60245bb145d552a67b7",
+    "config.json": "93aa340006fefef1f2255f205134ed5cc1db3e4d91d853b5b7263d834de3d39b"
+  },
+  "dataset_kepler_v1_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42_transformer_20260906_030128": {
+    "val_predictions.csv": "f99c4401df1675cf63ec1738ec95cdbaf8c39b9b5f99fb37ec1b6a1b9ddd6058",
+    "test_predictions.csv": "03c9a0956a8ce9a8da3f5e661ac7eeee9fd1b6bdefdfe42669ddd06723a1face",
+    "summary.json": "8a88a845d85f5ffd8947ef187301a5b6332af7df8bbfb385d7399f5bd811bc0b",
+    "config.json": "8f3fb81633cec0deacbda692b2a3e537198f81b804b269d60ee92fe81a61fdff"
+  }
+}

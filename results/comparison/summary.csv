@@ -1,0 +1,41 @@
+model,evidence,metric,label,n,mean,std
+HGB scalar,individual run,accuracy,Accuracy,1,0.7997587454764777,
+HGB scalar,individual run,f1,F1,1,0.7529761904761905,
+HGB scalar,individual run,pr_auc,Average precision,1,0.7781798970732767,
+HGB scalar,individual run,roc_auc,ROC-AUC,1,0.877212108919426,
+HGB full,individual run,accuracy,Accuracy,1,0.893848009650181,
+HGB full,individual run,f1,F1,1,0.8580645161290322,
+HGB full,individual run,pr_auc,Average precision,1,0.9224788033261397,
+HGB full,individual run,roc_auc,ROC-AUC,1,0.9597953957710055,
+CNN baseline,individual run,accuracy,Accuracy,1,0.9095295536791315,
+CNN baseline,individual run,f1,F1,1,0.8760330578512396,
+CNN baseline,individual run,pr_auc,Average precision,1,0.9226096219824591,
+CNN baseline,individual run,roc_auc,ROC-AUC,1,0.9605306526038233,
+CNN wide branch,individual run,accuracy,Accuracy,1,0.8262967430639324,
+CNN wide branch,individual run,f1,F1,1,0.7728706624605678,
+CNN wide branch,individual run,pr_auc,Average precision,1,0.8013771076562937,
+CNN wide branch,individual run,roc_auc,ROC-AUC,1,0.8924560113584505,
+CNN regularized,individual run,accuracy,Accuracy,1,0.9059107358262968,
+CNN regularized,individual run,f1,F1,1,0.8668941979522184,
+CNN regularized,individual run,pr_auc,Average precision,1,0.9137994485766289,
+CNN regularized,individual run,roc_auc,ROC-AUC,1,0.9567529537041732,
+CNN + HGB blend,individual run,accuracy,Accuracy,1,0.9034981905910736,
+CNN + HGB blend,individual run,f1,F1,1,0.8753894080996885,
+CNN + HGB blend,individual run,pr_auc,Average precision,1,0.9430965547612564,
+CNN + HGB blend,individual run,roc_auc,ROC-AUC,1,0.9700763145885097,
+CNN v0,five matched seeds,accuracy,Accuracy,5,0.8926417370325692,0.01153867700223701
+CNN v0,five matched seeds,f1,F1,5,0.8593565062025661,0.011399828446037916
+CNN v0,five matched seeds,pr_auc,Average precision,5,0.9139053243339855,0.013752124802910303
+CNN v0,five matched seeds,roc_auc,ROC-AUC,5,0.9557673292429391,0.006765162125699703
+CNN v1 + metadata,five matched seeds,accuracy,Accuracy,5,0.9326899879372738,0.008673427267670692
+CNN v1 + metadata,five matched seeds,f1,F1,5,0.9082194142843582,0.010376258738784595
+CNN v1 + metadata,five matched seeds,pr_auc,Average precision,5,0.9605482464049387,0.004212166516838709
+CNN v1 + metadata,five matched seeds,roc_auc,ROC-AUC,5,0.9802051113026723,0.0014847066197687534
+Transformer v0,five matched seeds,accuracy,Accuracy,5,0.874065138721351,0.007367156325501779
+Transformer v0,five matched seeds,f1,F1,5,0.8385531855260957,0.007806270633051356
+Transformer v0,five matched seeds,pr_auc,Average precision,5,0.8859129404975867,0.009286681609389466
+Transformer v0,five matched seeds,roc_auc,ROC-AUC,5,0.9435576289234826,0.004564013900759871
+Transformer v1 + metadata,five matched seeds,accuracy,Accuracy,5,0.9225572979493366,0.007307662837568652
+Transformer v1 + metadata,five matched seeds,f1,F1,5,0.8962173357706164,0.008734896691784365
+Transformer v1 + metadata,five matched seeds,pr_auc,Average precision,5,0.9606310589234791,0.0025378120103136024
+Transformer v1 + metadata,five matched seeds,roc_auc,ROC-AUC,5,0.9784525379037575,0.0016237588406804357

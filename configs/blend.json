@@ -1,0 +1,10 @@
+{
+  "base_dir": ".",
+  "cnn_run_dir": "",
+  "hgb_run_dir": "",
+  "output_root": "outputs/stacking",
+  "method": "blend",
+  "selection_metric": "f1",
+  "threshold_grid_size": 181,
+  "weight_grid_size": 201
+}

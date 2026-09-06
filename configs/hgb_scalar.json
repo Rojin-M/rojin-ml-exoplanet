@@ -1,0 +1,20 @@
+{
+  "base_dir": ".",
+  "dataset_path": "data/processed/kepler/v0/dataset_kepler_v0_target10000_g200_l100_gw0.5_lwm4.0_bls1_seed42.npz",
+  "splits_path": "data/processed/kepler/v0/splits_kepler_v0_seed42.npz",
+  "manifest_path": "data/processed/kepler/v0/manifest_kepler_v0.csv",
+  "output_root": "outputs/tabular",
+  "feature_set": "scalar",
+  "seed": 42,
+  "max_iter": 400,
+  "learning_rate": 0.05,
+  "max_leaf_nodes": 31,
+  "max_depth": 0,
+  "min_samples_leaf": 20,
+  "l2_regularization": 0.0,
+  "early_stopping": true,
+  "validation_fraction": 0.1,
+  "n_iter_no_change": 30,
+  "threshold_grid_size": 181,
+  "regularization_search": false
+}

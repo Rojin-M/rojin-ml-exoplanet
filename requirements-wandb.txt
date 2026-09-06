@@ -1,0 +1,2 @@
+# Optional: install alongside requirements.txt when W&B tracking is wanted.
+wandb>=0.19,<1.0
